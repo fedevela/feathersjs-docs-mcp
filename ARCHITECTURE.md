@@ -91,9 +91,9 @@ This model is generated during parsing and used by listing/searching tools.
 
 ## `src/docs/sync.ts`
 
-- Handles git synchronization:
+- Handles git synchronization via `isomorphic-git`:
   - Clone when repository is missing
-  - Fetch + hard reset when repository exists
+  - Fetch + force checkout to remote branch commit when repository exists
 - Returns `SyncResult` with commit hash and change detection.
 
 ## `src/docs/discover.ts`
@@ -214,6 +214,10 @@ This section summarizes the main runtime and development dependencies and how th
   - Frontmatter parsing for markdown files
   - Used in `src/docs/parse.ts` to resolve page metadata/title
 
+- `isomorphic-git`
+  - Portable, library-based git operations (clone/fetch/checkout)
+  - Used in `src/docs/sync.ts` to avoid reliance on system `git` binary
+
 ### Development dependencies
 
 - `typescript`
@@ -233,5 +237,5 @@ This section summarizes the main runtime and development dependencies and how th
 
 ### Platform/runtime assumptions
 
-- Node.js runtime with access to `fs`, `path`, and `child_process`
-- `git` binary available on PATH for repository synchronization
+- Node.js runtime with access to `fs` and `path`
+- Network access to the configured git remote for repository synchronization

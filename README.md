@@ -144,7 +144,7 @@ Environment variables:
 ## Runtime flow
 
 1. Server starts and resolves config.
-2. Repository is cloned if missing, otherwise fetched/reset to target branch.
+2. Repository is cloned if missing, otherwise fetched and force-aligned to target branch.
 3. Markdown docs are discovered recursively under `docs/`.
 4. Metadata is parsed for each page.
 5. Tools/resources serve indexed data from memory.
@@ -189,7 +189,7 @@ Transcript artifact:
 
 - `src/index.ts` — MCP server bootstrap and tool/resource registration
 - `src/config.ts` — env parsing + runtime configuration
-- `src/docs/sync.ts` — git clone/fetch/reset lifecycle
+- `src/docs/sync.ts` — `isomorphic-git` clone/fetch/force-checkout lifecycle
 - `src/docs/discover.ts` — recursive markdown file discovery
 - `src/docs/parse.ts` — markdown parsing + metadata extraction
 - `src/types.ts` — shared domain types

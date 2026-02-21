@@ -110,7 +110,7 @@ function resolveDocFilePath(docsDir: string, uri: string): string {
  * Synchronize docs repository and rebuild in-memory metadata index.
  */
 async function refreshDocs(): Promise<void> {
-  const sync = syncDocsRepo(config);
+  const sync = await syncDocsRepo(config);
   commit = sync.commit;
   docsDirResolved = resolveDocsDir();
   const files = discoverMarkdownFiles(docsDirResolved);
