@@ -135,13 +135,19 @@ server.addTool({
       headings: page.headings.slice(0, 8)
     }));
 
-    // Build section grouping for section-first browsing in clients.
-    const groupMap = new Map<string, typeof results>();
-    for (const page of results) {
+    // Build section grouping across the full filtered set (not just paged results)
+    // so clients can always display complete section navigation.
+    const groupMap = new Map<string, Array<(typeof results)[number]>>();
+    for (const page of filtered) {
       const folder = path.posix.dirname(page.relativePath.replaceAll('\\', '/'));
       const key = folder === '.' ? '/' : folder;
       const existing = groupMap.get(key) ?? [];
-      existing.push(page);
+      existing.push({
+        uri: page.uri,
+        title: page.title,
+        relativePath: page.relativePath,
+        headings: page.headings.slice(0, 8)
+      });
       groupMap.set(key, existing);
     }
 

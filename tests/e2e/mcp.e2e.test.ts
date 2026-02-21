@@ -183,7 +183,11 @@ describe('MCP docs publisher e2e', () => {
 
     const groupedSections = new Set(groups.map((group: any) => String(group.folder)));
 
-    expect(groupedSections).toEqual(expectedSections);
+    // groups can include more sections than the current paged results when
+    // server returns global section navigation metadata.
+    for (const section of expectedSections) {
+      expect(groupedSections.has(section)).toBe(true);
+    }
 
     for (const group of groups) {
       const pages = Array.isArray(group.pages) ? group.pages : [];
