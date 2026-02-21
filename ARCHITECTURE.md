@@ -19,7 +19,7 @@ The system is organized into three layers:
 
 1. **Transport + MCP API layer** (`src/index.ts`)
    - Registers tools/resources
-   - Validates tool inputs (Zod)
+   - Validates tool inputs (Typia + explicit runtime guards)
    - Formats MCP responses
 
 2. **Docs indexing pipeline** (`src/docs/*`)
@@ -206,8 +206,8 @@ This section summarizes the main runtime and development dependencies and how th
   - Provides MCP server primitives (`McpServer`, stdio transport)
   - Used in `src/index.ts` to expose tools and resources
 
-- `zod`
-  - Input schema validation for MCP tools
+- `typia`
+  - Near-zero-overhead runtime validation and type-safe argument checking for MCP tools
   - Used in `src/index.ts` for `list_docs`, `read_doc`, and `refresh_docs_index` inputs
 
 - `gray-matter`

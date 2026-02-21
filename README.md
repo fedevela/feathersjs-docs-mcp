@@ -91,6 +91,12 @@ npm install
 npm run build
 ```
 
+### Validation stack
+
+- Tool argument validation uses **Typia** (instead of Zod).
+- The project is configured with Typia's TypeScript transform (`ts-patch` + TS plugin in `tsconfig.json`).
+- `npm install` runs `prepare` automatically (`ts-patch install`).
+
 ## Run (stdio MCP server)
 
 ```bash
