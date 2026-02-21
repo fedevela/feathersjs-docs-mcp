@@ -24,6 +24,12 @@ type RefreshDocsArgs = {
   forceRebuild?: boolean;
 };
 
+type TypiaValidationResult<T> = {
+  success: boolean;
+  data?: unknown;
+  errors?: Array<{ path?: string; expected?: string; value?: unknown }>;
+};
+
 const validateListDocsArgs = typia.createValidate<ListDocsArgs>();
 const validateReadDocArgs = typia.createValidate<ReadDocArgs>();
 const validateRefreshDocsArgs = typia.createValidate<RefreshDocsArgs>();
@@ -40,8 +46,10 @@ const passthroughInputSchema = {
   }
 } as any;
 
+const textContent = (text: string) => ({ type: 'text' as const, text });
+
 function assertValid<T>(
-  validator: (input: unknown) => { success: boolean; data?: unknown; errors?: Array<{ path?: string; expected?: string; value?: unknown }> },
+  validator: (input: unknown) => TypiaValidationResult<T>,
   input: unknown,
   toolName: string
 ): T {
@@ -204,9 +212,8 @@ server.registerTool(
 
     return {
       content: [
-        {
-          type: 'text' as const,
-          text: JSON.stringify(
+        textContent(
+          JSON.stringify(
             {
               query: query ?? null,
               total: filtered.length,
@@ -219,7 +226,7 @@ server.registerTool(
             null,
             2
           )
-        }
+        )
       ]
     };
   }
@@ -243,10 +250,7 @@ server.registerTool(
     const text = fs.readFileSync(filePath, 'utf8');
     return {
       content: [
-        {
-          type: 'text' as const,
-          text: JSON.stringify({ uri, content: text }, null, 2)
-        }
+        textContent(JSON.stringify({ uri, content: text }, null, 2))
       ]
     };
   }
@@ -266,9 +270,8 @@ server.registerTool(
     await refreshDocs();
     return {
       content: [
-        {
-          type: 'text' as const,
-          text: JSON.stringify(
+        textContent(
+          JSON.stringify(
             {
               ok: true,
               forceRebuild: forceRebuild ?? false,
@@ -279,7 +282,7 @@ server.registerTool(
             null,
             2
           )
-        }
+        )
       ]
     };
   }
@@ -296,9 +299,8 @@ server.registerTool(
     // Report current repository/index state for diagnostics.
     return {
       content: [
-        {
-          type: 'text',
-          text: JSON.stringify(
+        textContent(
+          JSON.stringify(
             {
               repoUrl: config.repoUrl,
               branch: config.repoBranch,
@@ -313,7 +315,7 @@ server.registerTool(
             null,
             2
           )
-        }
+        )
       ]
     };
   }
