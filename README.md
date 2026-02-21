@@ -93,9 +93,9 @@ npm run build
 
 ### Validation stack
 
-- Tool argument validation uses **Typia** (instead of Zod).
-- The project is configured with Typia's TypeScript transform (`ts-patch` + TS plugin in `tsconfig.json`).
-- `npm install` runs `prepare` automatically (`ts-patch install`).
+- MCP server/runtime is built with **FastMCP**.
+- Tool argument validation uses **Zod** schemas passed directly to FastMCP.
+- No manual SDK passthrough schema shims are required.
 
 ## Run (stdio MCP server)
 

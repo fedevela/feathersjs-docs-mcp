@@ -13,11 +13,6 @@
     "types": [
       "node"
     ],
-    "plugins": [
-      {
-        "transform": "typia/lib/transform"
-      }
-    ],
     "strictNullChecks": true
   },
   "include": [

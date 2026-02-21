@@ -1,68 +1,27 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import typia from 'typia';
+import { FastMCP } from 'fastmcp';
+import { z } from 'zod';
 import { getConfig } from './config.js';
 import { syncDocsRepo } from './docs/sync.js';
 import { discoverMarkdownFiles } from './docs/discover.js';
 import { parseMarkdownFile } from './docs/parse.js';
 import { PageMeta } from './types.js';
 
-type ListDocsArgs = {
-  query?: string;
-  limit?: number;
-  offset?: number;
-};
+const listDocsParams = z.object({
+  query: z.string().optional(),
+  limit: z.number().int().min(1).max(20).optional(),
+  offset: z.number().int().min(0).optional()
+});
 
-type ReadDocArgs = {
-  uri: string;
-};
+const readDocParams = z.object({
+  uri: z.string().startsWith('feathers-doc://docs/')
+});
 
-type RefreshDocsArgs = {
-  forceRebuild?: boolean;
-};
-
-type TypiaValidationResult<T> = {
-  success: boolean;
-  data?: unknown;
-  errors?: Array<{ path?: string; expected?: string; value?: unknown }>;
-};
-
-const validateListDocsArgs = typia.createValidate<ListDocsArgs>();
-const validateReadDocArgs = typia.createValidate<ReadDocArgs>();
-const validateRefreshDocsArgs = typia.createValidate<RefreshDocsArgs>();
-
-const passthroughInputSchema = {
-  parse(input: unknown) {
-    return input;
-  },
-  safeParse(input: unknown) {
-    return { success: true as const, data: input };
-  },
-  async safeParseAsync(input: unknown) {
-    return { success: true as const, data: input };
-  }
-} as any;
-
-const textContent = (text: string) => ({ type: 'text' as const, text });
-
-function assertValid<T>(
-  validator: (input: unknown) => TypiaValidationResult<T>,
-  input: unknown,
-  toolName: string
-): T {
-  const validated = validator(input);
-  if (!validated.success) {
-    const first = validated.errors?.[0];
-    const detail = first
-      ? `path=${first.path ?? '(root)'}, expected=${first.expected ?? 'unknown'}, value=${JSON.stringify(first.value)}`
-      : 'unknown validation error';
-    throw new Error(`Invalid arguments for ${toolName}: ${detail}`);
-  }
-  return (validated.data ?? {}) as T;
-}
+const refreshDocsParams = z.object({
+  forceRebuild: z.boolean().optional()
+});
 
 /** Global runtime configuration loaded from environment variables. */
 const config = getConfig();
@@ -123,53 +82,37 @@ async function refreshDocs(): Promise<void> {
 
 await refreshDocs();
 
-/** MCP server instance configured for stdio transport. */
-const server = new McpServer({
+/** FastMCP server instance configured for stdio transport. */
+const server = new FastMCP({
   name: 'feathers-docs-mcp',
   version: '0.1.0'
 });
 
-server.registerResource(
-  'feathers-doc-page',
-  'feathers-doc://docs/{path}',
-  {
-    title: 'Feathers Documentation Page',
-    description: 'Read a FeathersJS markdown documentation page'
-  },
-  async (uri) => {
-    const filePath = resolveDocFilePath(docsDirResolved, uri.href);
+server.addResourceTemplate({
+  uriTemplate: 'feathers-doc://docs/{path}',
+  name: 'Feathers Documentation Page',
+  mimeType: 'text/markdown',
+  arguments: [
+    {
+      name: 'path',
+      required: true
+    }
+  ],
+  async load({ path: docPath }) {
+    const filePath = resolveDocFilePath(docsDirResolved, `feathers-doc://docs/${docPath}`);
     const text = fs.readFileSync(filePath, 'utf8');
     return {
-      contents: [
-        {
-          uri: uri.href,
-          mimeType: 'text/markdown',
-          text
-        }
-      ]
+      text
     };
   }
-);
+});
 
-server.registerTool(
-  'list_docs',
-  {
-    title: 'List Feathers documentation pages',
-    description: 'Lists available FeathersJS docs pages with optional text filtering',
-    inputSchema: passthroughInputSchema
-  },
-  async (args: any, _extra: any) => {
-    const { query, limit, offset } = assertValid<ListDocsArgs>(validateListDocsArgs, args ?? {}, 'list_docs');
-
-    if (query !== undefined && typeof query !== 'string') {
-      throw new Error('Invalid arguments for list_docs: query must be a string');
-    }
-    if (limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 20)) {
-      throw new Error('Invalid arguments for list_docs: limit must be an integer between 1 and 20');
-    }
-    if (offset !== undefined && (!Number.isInteger(offset) || offset < 0)) {
-      throw new Error('Invalid arguments for list_docs: offset must be an integer >= 0');
-    }
+server.addTool({
+  name: 'list_docs',
+  description: 'Lists available FeathersJS docs pages with optional text filtering',
+  parameters: listDocsParams,
+  async execute(args) {
+    const { query, limit, offset } = args;
 
     // Filter pages by title/path/headings when a query is provided.
     const q = query?.toLowerCase().trim();
@@ -210,117 +153,79 @@ server.registerTool(
         pages: pagesInFolder.sort((a, b) => a.relativePath.localeCompare(b.relativePath))
       }));
 
-    return {
-      content: [
-        textContent(
-          JSON.stringify(
-            {
-              query: query ?? null,
-              total: filtered.length,
-              offset: start,
-              limit: size,
-              count: results.length,
-              results,
-              groups
-            },
-            null,
-            2
-          )
-        )
-      ]
-    };
+    return JSON.stringify(
+      {
+        query: query ?? null,
+        total: filtered.length,
+        offset: start,
+        limit: size,
+        count: results.length,
+        results,
+        groups
+      },
+      null,
+      2
+    );
   }
-);
+});
 
-server.registerTool(
-  'read_doc',
-  {
-    title: 'Read Feathers documentation page',
-    description: 'Reads a markdown page by feathers-doc URI',
-    inputSchema: passthroughInputSchema
-  },
-  async (args: any, _extra: any) => {
-    const { uri } = assertValid<ReadDocArgs>(validateReadDocArgs, args ?? {}, 'read_doc');
-    if (!uri.startsWith('feathers-doc://docs/')) {
-      throw new Error("Invalid arguments for read_doc: uri must start with 'feathers-doc://docs/'");
-    }
+server.addTool({
+  name: 'read_doc',
+  description: 'Reads a markdown page by feathers-doc URI',
+  parameters: readDocParams,
+  async execute({ uri }) {
 
     // Resolve and read the markdown page addressed by the docs URI.
     const filePath = resolveDocFilePath(docsDirResolved, uri);
     const text = fs.readFileSync(filePath, 'utf8');
-    return {
-      content: [
-        textContent(JSON.stringify({ uri, content: text }, null, 2))
-      ]
-    };
+    return JSON.stringify({ uri, content: text }, null, 2);
   }
-);
+});
 
-server.registerTool(
-  'refresh_docs_index',
-  {
-    title: 'Refresh docs',
-    description: 'Pull latest Feathers docs and refresh in-memory catalog',
-    inputSchema: passthroughInputSchema
-  },
-  async (args: any, _extra: any) => {
-    const { forceRebuild } = assertValid<RefreshDocsArgs>(validateRefreshDocsArgs, args ?? {}, 'refresh_docs_index');
+server.addTool({
+  name: 'refresh_docs_index',
+  description: 'Pull latest Feathers docs and refresh in-memory catalog',
+  parameters: refreshDocsParams,
+  async execute({ forceRebuild }) {
 
     // Re-sync repository and fully rebuild in-memory page index.
     await refreshDocs();
-    return {
-      content: [
-        textContent(
-          JSON.stringify(
-            {
-              ok: true,
-              forceRebuild: forceRebuild ?? false,
-              commit,
-              lastSyncAt,
-              pages: pages.length
-            },
-            null,
-            2
-          )
-        )
-      ]
-    };
+    return JSON.stringify(
+      {
+        ok: true,
+        forceRebuild: forceRebuild ?? false,
+        commit,
+        lastSyncAt,
+        pages: pages.length
+      },
+      null,
+      2
+    );
   }
-);
+});
 
-server.registerTool(
-  'get_docs_status',
-  {
-    title: 'Get docs index status',
-    description: 'Returns repository/index health and metadata',
-    inputSchema: {}
-  },
-  async () => {
+server.addTool({
+  name: 'get_docs_status',
+  description: 'Returns repository/index health and metadata',
+  async execute() {
     // Report current repository/index state for diagnostics.
-    return {
-      content: [
-        textContent(
-          JSON.stringify(
-            {
-              repoUrl: config.repoUrl,
-              branch: config.repoBranch,
-              commit,
-              lastSyncAt,
-              pages: pages.length,
-              docsDirResolved,
-              docsDirExists: fs.existsSync(docsDirResolved),
-              discoveryWarnings,
-              cacheDir: config.cacheDir
-            },
-            null,
-            2
-          )
-        )
-      ]
-    };
+    return JSON.stringify(
+      {
+        repoUrl: config.repoUrl,
+        branch: config.repoBranch,
+        commit,
+        lastSyncAt,
+        pages: pages.length,
+        docsDirResolved,
+        docsDirExists: fs.existsSync(docsDirResolved),
+        discoveryWarnings,
+        cacheDir: config.cacheDir
+      },
+      null,
+      2
+    );
   }
-);
+});
 
-const transport = new StdioServerTransport();
-await server.connect(transport);
+server.start({ transportType: 'stdio' });
 console.error('feathers-docs-mcp running on stdio');

@@ -19,7 +19,7 @@ The system is organized into three layers:
 
 1. **Transport + MCP API layer** (`src/index.ts`)
    - Registers tools/resources
-   - Validates tool inputs (Typia + explicit runtime guards)
+   - Validates tool inputs (FastMCP + Zod schemas)
    - Formats MCP responses
 
 2. **Docs indexing pipeline** (`src/docs/*`)
@@ -49,8 +49,8 @@ On process start (`src/index.ts`):
    - Discover markdown files recursively
    - Parse each file into `PageMeta`
    - Store page index in memory
-3. Create `McpServer` and register resources/tools.
-4. Connect stdio transport (`StdioServerTransport`).
+3. Create `FastMCP` server and register resources/tools.
+4. Start stdio transport (`transportType: "stdio"`).
 
 ### Refresh flow
 
@@ -202,13 +202,13 @@ This section summarizes the main runtime and development dependencies and how th
 
 ### Runtime dependencies
 
-- `@modelcontextprotocol/sdk`
-  - Provides MCP server primitives (`McpServer`, stdio transport)
-  - Used in `src/index.ts` to expose tools and resources
+- `fastmcp`
+  - Provides MCP framework primitives for tools/resources and transport startup
+  - Used in `src/index.ts` to expose tools/resources and run stdio transport
 
-- `typia`
-  - Near-zero-overhead runtime validation and type-safe argument checking for MCP tools
-  - Used in `src/index.ts` for `list_docs`, `read_doc`, and `refresh_docs_index` inputs
+- `zod`
+  - Tool input schemas consumed directly by FastMCP
+  - Used in `src/index.ts` for `list_docs`, `read_doc`, and `refresh_docs_index` parameter validation
 
 - `gray-matter`
   - Frontmatter parsing for markdown files
