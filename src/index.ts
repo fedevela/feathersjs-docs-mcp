@@ -125,7 +125,7 @@ server.addTool({
       );
     });
 
-    // Apply cursor-style pagination over filtered results.
+    // Apply cursor-style pagination over filtered results for the `results` field.
     const start = offset ?? 0;
     const size = limit ?? config.topK;
     const results = filtered.slice(start, start + size).map((page) => ({
@@ -135,8 +135,8 @@ server.addTool({
       headings: page.headings.slice(0, 8)
     }));
 
-    // Build section grouping across the full filtered set (not just paged results)
-    // so clients can always display complete section navigation.
+    // Build `groups` from the full filtered set (not only paged results)
+    // so clients can render complete section navigation independently of page size.
     const groupMap = new Map<string, Array<(typeof results)[number]>>();
     for (const page of filtered) {
       const folder = path.posix.dirname(page.relativePath.replaceAll('\\', '/'));
@@ -159,6 +159,7 @@ server.addTool({
         pages: pagesInFolder.sort((a, b) => a.relativePath.localeCompare(b.relativePath))
       }));
 
+    // Return a JSON string payload as text content for broad MCP client compatibility.
     return JSON.stringify(
       {
         query: query ?? null,
@@ -180,7 +181,6 @@ server.addTool({
   description: 'Reads a markdown page by feathers-doc URI',
   parameters: readDocParams,
   async execute({ uri }) {
-
     // Resolve and read the markdown page addressed by the docs URI.
     const filePath = resolveDocFilePath(docsDirResolved, uri);
     const text = fs.readFileSync(filePath, 'utf8');
@@ -193,7 +193,6 @@ server.addTool({
   description: 'Pull latest Feathers docs and refresh in-memory catalog',
   parameters: refreshDocsParams,
   async execute({ forceRebuild }) {
-
     // Re-sync repository and fully rebuild in-memory page index.
     await refreshDocs();
     return JSON.stringify(

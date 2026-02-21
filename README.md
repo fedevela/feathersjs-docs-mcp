@@ -39,6 +39,8 @@ Lists available Feathers docs pages with optional text filtering and pagination.
 - `results[]`: `{ uri, title, relativePath, headings }`
 - `groups[]`: grouped view by folder (`section -> page count + pages`)
 
+> `results` is paginated, but `groups` is built from the full filtered set so clients can render complete section navigation even with small limits (e.g. `limit: 20`).
+
 ---
 
 #### `read_doc`
@@ -96,6 +98,10 @@ npm run build
 - MCP server/runtime is built with **FastMCP**.
 - Tool argument validation uses **Zod** schemas passed directly to FastMCP.
 - No manual SDK passthrough schema shims are required.
+
+### Response format note
+
+Tools currently return JSON payloads serialized as text content (`type: "text"`). This keeps compatibility with existing MCP clients/tests that parse structured JSON from text blocks.
 
 ## Run (stdio MCP server)
 

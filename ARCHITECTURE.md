@@ -128,7 +128,7 @@ This model is generated during parsing and used by listing/searching tools.
 
 - `list_docs(query?, limit?, offset?)`
   - Filter and paginate docs pages
-  - Returns both flat `results` and folder `groups`
+  - Returns paged `results` plus folder `groups` built from the full filtered set
 
 - `read_doc(uri)`
   - Reads markdown content for a docs URI
@@ -169,6 +169,7 @@ This gives fast list/read operations after initial sync while keeping source-of-
 - **Startup dependency**: requires git access to target repo/branch
 - **Branch pinning**: controlled via `FEATHERS_REPO_BRANCH`
 - **Pagination**: hard `limit` cap of 20 in tool schema
+- **Section navigation semantics**: `groups` is not paginated; it reflects the entire filtered corpus
 - **Determinism**: markdown file list is sorted before parse/index
 
 ---

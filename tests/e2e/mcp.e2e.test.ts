@@ -201,6 +201,61 @@ describe('MCP docs publisher e2e', () => {
     }
   });
 
+  it('respects limit values for paged results (limit 5 and limit 3)', async () => {
+    const listedFive = await client.callTool({
+      name: 'list_docs',
+      arguments: { limit: 5 }
+    });
+    transcript.push('list_docs_limit_5', 'response', listedFive);
+
+    const payloadFive = JSON.parse(extractTextContent(listedFive));
+    expect(payloadFive.limit).toBe(5);
+    expect(payloadFive.count).toBe(Math.min(5, payloadFive.total));
+    expect(Array.isArray(payloadFive.results)).toBe(true);
+    expect(payloadFive.results.length).toBe(payloadFive.count);
+
+    const listedThree = await client.callTool({
+      name: 'list_docs',
+      arguments: { limit: 3 }
+    });
+    transcript.push('list_docs_limit_3', 'response', listedThree);
+
+    const payloadThree = JSON.parse(extractTextContent(listedThree));
+    expect(payloadThree.limit).toBe(3);
+    expect(payloadThree.count).toBe(Math.min(3, payloadThree.total));
+    expect(Array.isArray(payloadThree.results)).toBe(true);
+    expect(payloadThree.results.length).toBe(payloadThree.count);
+  });
+
+  it('applies query filtering to groups output', async () => {
+    const listed = await client.callTool({
+      name: 'list_docs',
+      arguments: { query: 'authentication', limit: 20 }
+    });
+    transcript.push('list_docs_groups_query_filter', 'response', listed);
+
+    const payload = JSON.parse(extractTextContent(listed));
+    const groups = Array.isArray(payload.groups) ? payload.groups : [];
+    const results = Array.isArray(payload.results) ? payload.results : [];
+
+    expect(groups.length).toBeGreaterThan(0);
+    expect(results.length).toBeGreaterThan(0);
+
+    const groupedPages = groups.flatMap((group: any) => (Array.isArray(group.pages) ? group.pages : []));
+    const groupedUris = new Set(groupedPages.map((page: any) => String(page.uri)));
+    const resultUris = new Set(results.map((page: any) => String(page.uri)));
+
+    // All paged results must be represented in groups for the same query.
+    for (const uri of resultUris) {
+      expect(groupedUris.has(uri)).toBe(true);
+    }
+
+    // groups is built from the full filtered corpus; summed group counts should
+    // match the tool-reported total count of filtered pages.
+    const groupedCount = groups.reduce((sum: number, group: any) => sum + Number(group.count ?? 0), 0);
+    expect(groupedCount).toBe(payload.total);
+  });
+
   it('walks refresh flow', async () => {
     const before = await client.callTool({ name: 'get_docs_status', arguments: {} });
     transcript.push('status_before_refresh', 'response', before);
