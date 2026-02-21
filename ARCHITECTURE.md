@@ -219,8 +219,8 @@ This section summarizes the main runtime and development dependencies and how th
 - `typescript`
   - Static typing and compilation (`npm run build`)
 
-- `ts-node`
-  - TypeScript execution for local development (`npm run dev`)
+- `tsx`
+  - Fast TypeScript execution for local development (`npm run dev` uses `tsx src/index.ts`)
 
 - `vitest`
   - Test runner used by e2e suite (`npm run test:e2e`)
