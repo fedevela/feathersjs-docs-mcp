@@ -1,4 +1,5 @@
 import path from 'node:path';
+import pathPosix from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { expect as pwExpect } from '@playwright/test';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
@@ -159,6 +160,41 @@ describe('MCP docs publisher e2e', () => {
     console.log('[e2e] read_doc snippet:', String(readPayload.content).slice(0, 240));
 
     pwExpect(String(readPayload.content).length).toBeGreaterThan(0);
+  });
+
+  it('returns all relevant sections in grouped list output', async () => {
+    const listed = await client.callTool({
+      name: 'list_docs',
+      arguments: { limit: 20 }
+    });
+    transcript.push('list_docs_sections_check', 'response', listed);
+
+    const listText = extractTextContent(listed);
+    const listPayload = JSON.parse(listText);
+    const results = Array.isArray(listPayload.results) ? listPayload.results : [];
+    const groups = Array.isArray(listPayload.groups) ? listPayload.groups : [];
+
+    const expectedSections = new Set(
+      results.map((page: any) => {
+        const folder = pathPosix.posix.dirname(String(page.relativePath).replaceAll('\\\\', '/'));
+        return folder === '.' ? '/' : folder;
+      })
+    );
+
+    const groupedSections = new Set(groups.map((group: any) => String(group.folder)));
+
+    expect(groupedSections).toEqual(expectedSections);
+
+    for (const group of groups) {
+      const pages = Array.isArray(group.pages) ? group.pages : [];
+      expect(group.count).toBe(pages.length);
+
+      for (const page of pages) {
+        const folder = pathPosix.posix.dirname(String(page.relativePath).replaceAll('\\\\', '/'));
+        const normalizedFolder = folder === '.' ? '/' : folder;
+        expect(normalizedFolder).toBe(group.folder);
+      }
+    }
   });
 
   it('walks refresh flow', async () => {
