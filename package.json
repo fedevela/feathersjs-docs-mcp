@@ -1,16 +1,52 @@
 {
-  "name": "feathers-docs-mcp",
+  "name": "feathersjs-mcp",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "type": "module",
-  "description": "Read-only MCP server for FeathersJS documentation",
+  "description": "Read-only MCP server for discovering and reading FeathersJS documentation",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "feathers",
+    "feathersjs",
+    "documentation"
+  ],
+  "license": "MIT",
+  "author": "fedevela",
+  "homepage": "https://github.com/fedevela/feathersjs-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fedevela/feathersjs-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fedevela/feathersjs-mcp/issues"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "feathersjs-mcp": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "test:e2e": "npm run build && vitest run --config vitest.e2e.config.ts",
-    "test:e2e:watch": "vitest --config vitest.e2e.config.ts"
+    "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
+    "prepublishOnly": "npm run build && npm run test:e2e"
   },
   "dependencies": {
     "fastmcp": "^3.33.0",
