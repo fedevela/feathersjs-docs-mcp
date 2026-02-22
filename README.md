@@ -38,6 +38,23 @@ npm run build
 npm start
 ```
 
+### Run with explicit transport
+
+`feathersjs-docs-mcp` does not auto-detect transport at runtime. Set transport explicitly:
+
+```bash
+# Default standalone streamable HTTP transport for shared localhost access
+npm start
+
+# Explicitly force stdio transport
+FEATHERS_MCP_TRANSPORT=stdio npm start
+```
+
+When running with `httpStream`:
+
+- MCP streamable HTTP endpoint: `http://127.0.0.1:8123/mcp` (customizable)
+- SSE compatibility endpoint: `http://127.0.0.1:8123/sse` (provided by FastMCP)
+
 ## Test
 
 ```bash
@@ -48,6 +65,11 @@ npm run test:e2e
 
 ## Configuration
 
+- `FEATHERS_MCP_TRANSPORT` (default: `httpStream`, values: `stdio` | `httpStream`)
+- `FEATHERS_MCP_HTTP_HOST` (default: `127.0.0.1`)
+- `FEATHERS_MCP_HTTP_PORT` (default: `8123`)
+- `FEATHERS_MCP_HTTP_ENDPOINT` (default: `/mcp`)
+- `FEATHERS_MCP_HTTP_STATELESS` (default: `false`)
 - `FEATHERS_REPO_URL` (default: `https://github.com/feathersjs/feathers.git`)
 - `FEATHERS_REPO_BRANCH` (default: `dove`)
 - `FEATHERS_MCP_CACHE_DIR` (default: `./.cache/feathersjs-docs-mcp`)

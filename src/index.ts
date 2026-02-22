@@ -232,5 +232,24 @@ server.addTool({
   }
 });
 
-server.start({ transportType: 'stdio' });
-console.error('feathersjs-docs-mcp running on stdio');
+if (config.transport === 'stdio') {
+  await server.start({ transportType: 'stdio' });
+  console.error('feathersjs-docs-mcp running on stdio');
+} else {
+  await server.start({
+    transportType: 'httpStream',
+    httpStream: {
+      host: config.httpHost,
+      port: config.httpPort,
+      endpoint: config.httpEndpoint,
+      stateless: config.httpStateless
+    }
+  });
+  const protocol = 'http';
+  console.error(
+    `feathersjs-docs-mcp running on ${protocol}://${config.httpHost}:${config.httpPort}${config.httpEndpoint}`
+  );
+  console.error(
+    `feathersjs-docs-mcp SSE compatibility endpoint: ${protocol}://${config.httpHost}:${config.httpPort}/sse`
+  );
+}

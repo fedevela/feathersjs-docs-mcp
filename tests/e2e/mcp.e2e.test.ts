@@ -3,7 +3,10 @@ import pathPosix from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { expect as pwExpect } from '@playwright/test';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import {
+  getDefaultEnvironment,
+  StdioClientTransport
+} from '@modelcontextprotocol/sdk/client/stdio.js';
 import { Transcript } from './transcript.js';
 
 const transcript = new Transcript();
@@ -12,6 +15,10 @@ const serverPath = path.resolve(process.cwd(), 'dist', 'index.js');
 const transport = new StdioClientTransport({
   command: 'node',
   args: [serverPath],
+  env: {
+    ...getDefaultEnvironment(),
+    FEATHERS_MCP_TRANSPORT: 'stdio'
+  },
   stderr: 'pipe'
 });
 

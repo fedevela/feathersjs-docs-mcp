@@ -50,7 +50,9 @@ On process start (`src/index.ts`):
    - Parse each file into `PageMeta`
    - Store page index in memory
 3. Create `FastMCP` server and register resources/tools.
-4. Start stdio transport (`transportType: "stdio"`).
+4. Start transport selected by runtime config:
+   - stdio (`transportType: "stdio"`), or
+   - streamable HTTP (`transportType: "httpStream"`) with FastMCP SSE compatibility endpoint.
 
 ### Refresh flow
 
@@ -161,6 +163,7 @@ This gives fast list/read operations after initial sync while keeping source-of-
 - URI prefix validation: must start with `feathers-doc://docs/`
 - Absolute path resolution + root prefix check to prevent traversal
 - Logs emitted to `stderr` to avoid stdio framing interference
+- Transport is manually configured via environment (no runtime auto-detection)
 
 ---
 
