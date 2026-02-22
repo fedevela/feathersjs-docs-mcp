@@ -2,3 +2,4 @@ artifacts/
 dist/
 node_modules/
 .cache/
+.opencode/
