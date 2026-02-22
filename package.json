@@ -1,5 +1,5 @@
 {
-  "name": "feathersjs-mcp",
+  "name": "feathersjs-docs-mcp",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -13,13 +13,13 @@
   ],
   "license": "MIT",
   "author": "fedevela",
-  "homepage": "https://github.com/fedevela/feathersjs-mcp#readme",
+  "homepage": "https://github.com/fedevela/feathersjs-docs-mcp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fedevela/feathersjs-mcp.git"
+    "url": "git+https://github.com/fedevela/feathersjs-docs-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/fedevela/feathersjs-mcp/issues"
+    "url": "https://github.com/fedevela/feathersjs-docs-mcp/issues"
   },
   "files": [
     "dist",
@@ -35,7 +35,7 @@
     }
   },
   "bin": {
-    "feathersjs-mcp": "dist/index.js"
+    "feathersjs-docs-mcp": "dist/index.js"
   },
   "engines": {
     "node": ">=20"

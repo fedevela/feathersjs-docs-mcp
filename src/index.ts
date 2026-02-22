@@ -84,7 +84,7 @@ await refreshDocs();
 
 /** FastMCP server instance configured for stdio transport. */
 const server = new FastMCP({
-  name: 'feathersjs-mcp',
+  name: 'feathersjs-docs-mcp',
   version: '0.1.0'
 });
 
@@ -233,4 +233,4 @@ server.addTool({
 });
 
 server.start({ transportType: 'stdio' });
-console.error('feathersjs-mcp running on stdio');
+console.error('feathersjs-docs-mcp running on stdio');

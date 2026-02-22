@@ -1,4 +1,4 @@
-# feathersjs-mcp
+# feathersjs-docs-mcp
 
 Read-only MCP server for discovering and reading **FeathersJS documentation** from the official Feathers repository.
 
@@ -50,7 +50,7 @@ npm run test:e2e
 
 - `FEATHERS_REPO_URL` (default: `https://github.com/feathersjs/feathers.git`)
 - `FEATHERS_REPO_BRANCH` (default: `dove`)
-- `FEATHERS_MCP_CACHE_DIR` (default: `./.cache/feathersjs-mcp`)
+- `FEATHERS_MCP_CACHE_DIR` (default: `./.cache/feathersjs-docs-mcp`)
 - `TOP_K` (default: `6`)
 
 ---
@@ -62,7 +62,7 @@ npm run test:e2e
   "mcpServers": {
     "feathers-docs": {
       "command": "node",
-      "args": ["/home/bob/feathersjs-mcp/dist/index.js"],
+      "args": ["/home/bob/feathersjs-docs-mcp/dist/index.js"],
       "disabled": false,
       "autoApprove": [],
       "env": {
@@ -81,7 +81,7 @@ This package is configured for publishing with:
 
 - `repository`, `homepage`, and `bugs` metadata
 - curated `files` list
-- `bin` command: `feathersjs-mcp`
+- `bin` command: `feathersjs-docs-mcp`
 - `engines` requirement (`node >= 20`)
 - `prepublishOnly` hook (`build + e2e tests`)
 

@@ -34,7 +34,7 @@ function intFromEnv(name: string, fallback: number): number {
 export function getConfig(): AppConfig {
   const baseCache = process.env.FEATHERS_MCP_CACHE_DIR
     ? path.resolve(process.env.FEATHERS_MCP_CACHE_DIR)
-    : path.resolve(process.cwd(), '.cache', 'feathersjs-mcp');
+    : path.resolve(process.cwd(), '.cache', 'feathersjs-docs-mcp');
 
   const repoDir = path.join(baseCache, 'feathers-repo');
   const docsDir = path.join(repoDir, 'docs');

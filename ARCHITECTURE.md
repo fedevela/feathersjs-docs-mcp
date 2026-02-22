@@ -1,10 +1,10 @@
 # ARCHITECTURE
 
-This document describes the architecture of `feathersjs-mcp`, a read-only MCP server that indexes and serves FeathersJS documentation.
+This document describes the architecture of `feathersjs-docs-mcp`, a read-only MCP server that indexes and serves FeathersJS documentation.
 
 ## 1. Purpose and scope
 
-`feathersjs-mcp` provides structured access to Feathers documentation through MCP:
+`feathersjs-docs-mcp` provides structured access to Feathers documentation through MCP:
 
 - **Tools** for listing, reading, refreshing, and inspecting docs status
 - **Resource template** for URI-based markdown retrieval
@@ -249,7 +249,7 @@ The package is structured to be publish-ready in npm while keeping runtime behav
 
 - **Entry point**: `dist/index.js` (compiled from `src/index.ts`)
 - **Type declarations**: `dist/index.d.ts`
-- **CLI binary**: `feathersjs-mcp` mapped to `dist/index.js`
+- **CLI binary**: `feathersjs-docs-mcp` mapped to `dist/index.js`
 - **Published files**: constrained via `package.json#files` to reduce package size/noise
 
 `prepublishOnly` enforces quality gates before release:
