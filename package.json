@@ -37,6 +37,9 @@
   "bin": {
     "feathersjs-docs-mcp": "dist/index.js"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20"
   },

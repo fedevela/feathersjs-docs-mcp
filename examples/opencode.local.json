@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "feathersjs-docs": {
+      "command": "node",
+      "args": ["/absolute/path/to/feathersjs-mcp/dist/index.js"],
+      "env": {
+        "FEATHERS_MCP_TRANSPORT": "stdio",
+        "FEATHERS_REPO_BRANCH": "dove"
+      }
+    }
+  }
+}

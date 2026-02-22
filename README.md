@@ -32,34 +32,42 @@ npm install
 npm run build
 ```
 
-## Run
+## Run (local stdio)
 
 ```bash
-npm start
-```
-
-### Run with explicit transport
-
-`feathersjs-docs-mcp` does not auto-detect transport at runtime. Set transport explicitly:
-
-```bash
-# Default standalone streamable HTTP transport for shared localhost access
-npm start
-
-# Explicitly force stdio transport
 FEATHERS_MCP_TRANSPORT=stdio npm start
 ```
-
-When running with `httpStream`:
-
-- MCP streamable HTTP endpoint: `http://127.0.0.1:8123/mcp` (customizable)
-- SSE compatibility endpoint: `http://127.0.0.1:8123/sse` (provided by FastMCP)
 
 ## Test
 
 ```bash
 npm run test:e2e
 ```
+
+---
+
+## Local MCP quickstart
+
+This package is designed to run as a **local MCP server** through your MCP client.
+
+### Configure your MCP client to run this local build
+
+```json
+{
+  "mcpServers": {
+    "feathersjs-docs": {
+      "command": "node",
+      "args": ["/absolute/path/to/feathersjs-mcp/dist/index.js"],
+      "env": {
+        "FEATHERS_MCP_TRANSPORT": "stdio",
+        "FEATHERS_REPO_BRANCH": "dove"
+      }
+    }
+  }
+}
+```
+
+Build first (`npm run build`) so `dist/index.js` exists, then restart your IDE or MCP client.
 
 ---
 
@@ -74,6 +82,8 @@ npm run test:e2e
 - `FEATHERS_REPO_BRANCH` (default: `dove`)
 - `FEATHERS_MCP_CACHE_DIR` (default: `./.cache/feathersjs-docs-mcp`)
 - `TOP_K` (default: `6`)
+
+For local MCP usage over stdio, set `FEATHERS_MCP_TRANSPORT=stdio`.
 
 ---
 
