@@ -97,26 +97,6 @@ npm run test:e2e
 
 ---
 
-## NPM publishing notes
-
-This package is configured for publishing with:
-
-- `repository`, `homepage`, and `bugs` metadata
-- curated `files` list
-- `bin` command: `feathersjs-docs-mcp`
-- `engines` requirement (`node >= 20`)
-- `prepublishOnly` hook (`build + e2e tests`)
-
-Before publishing:
-
-```bash
-npm run build
-npm run test:e2e
-npm publish
-```
-
----
-
 ## License
 
 MIT
